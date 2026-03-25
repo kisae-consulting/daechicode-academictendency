@@ -532,3 +532,143 @@ const CAREER_DATABASE = {
         '군인/부사관/육사/공사/해사/경찰/철도': { R: 60, I: 20, A: 0, S: 30, E: 40, C: 50 }
     }
 };
+
+// ==========================================
+// 미취학 / 초등 1~3학년용 검사 문항 (60문항)
+// 쉬운 언어, 구체적 활동 중심, 3점 척도
+// ==========================================
+const YOUNG_ASSESSMENT_SECTIONS = [
+    { id: 'like', name: '좋아하는 것', icon: '😊', description: '내가 좋아하는 활동을 알아봅니다.' },
+    { id: 'good', name: '잘하는 것', icon: '💪', description: '내가 잘하는 것을 알아봅니다.' },
+    { id: 'want', name: '하고 싶은 것', icon: '⭐', description: '앞으로 해보고 싶은 것을 알아봅니다.' }
+];
+
+const YOUNG_QUESTIONS = [
+    // ========== 좋아하는 것 (30문항, RIASEC 각 5문항) ==========
+    // R 실재형
+    { id: 'Y001', riasec: 'R', section: 'like', text: '레고나 블록으로 뭔가를 만드는 게 좋아요.', scale: 3 },
+    { id: 'Y002', riasec: 'R', section: 'like', text: '밖에서 뛰어놀거나 운동하는 게 좋아요.', scale: 3 },
+    { id: 'Y003', riasec: 'R', section: 'like', text: '장난감을 분해하거나 어떻게 생겼는지 살펴보는 게 재미있어요.', scale: 3 },
+    { id: 'Y004', riasec: 'R', section: 'like', text: '동물이나 곤충을 관찰하는 게 좋아요.', scale: 3 },
+    { id: 'Y005', riasec: 'R', section: 'like', text: '요리하거나 만들기 같은 활동이 재미있어요.', scale: 3 },
+
+    // I 탐구형
+    { id: 'Y006', riasec: 'I', section: 'like', text: '"왜?"라고 궁금한 게 많아요.', scale: 3 },
+    { id: 'Y007', riasec: 'I', section: 'like', text: '과학 실험이나 관찰하는 게 재미있어요.', scale: 3 },
+    { id: 'Y008', riasec: 'I', section: 'like', text: '퍼즐이나 수수께끼 푸는 게 좋아요.', scale: 3 },
+    { id: 'Y009', riasec: 'I', section: 'like', text: '새로운 것을 배우면 기분이 좋아요.', scale: 3 },
+    { id: 'Y010', riasec: 'I', section: 'like', text: '숫자를 세거나 계산하는 게 재미있어요.', scale: 3 },
+
+    // A 예술형
+    { id: 'Y011', riasec: 'A', section: 'like', text: '그림 그리기가 좋아요.', scale: 3 },
+    { id: 'Y012', riasec: 'A', section: 'like', text: '노래 부르거나 춤추는 게 좋아요.', scale: 3 },
+    { id: 'Y013', riasec: 'A', section: 'like', text: '이야기를 만들거나 상상하는 게 재미있어요.', scale: 3 },
+    { id: 'Y014', riasec: 'A', section: 'like', text: '예쁜 것, 멋진 것을 보면 기분이 좋아요.', scale: 3 },
+    { id: 'Y015', riasec: 'A', section: 'like', text: '나만의 방식으로 꾸미거나 만드는 게 좋아요.', scale: 3 },
+
+    // S 사회형
+    { id: 'Y016', riasec: 'S', section: 'like', text: '친구들과 함께 노는 게 좋아요.', scale: 3 },
+    { id: 'Y017', riasec: 'S', section: 'like', text: '누군가를 도와주면 기분이 좋아요.', scale: 3 },
+    { id: 'Y018', riasec: 'S', section: 'like', text: '동생이나 친구에게 무언가를 알려주는 게 좋아요.', scale: 3 },
+    { id: 'Y019', riasec: 'S', section: 'like', text: '슬픈 친구를 보면 위로해주고 싶어요.', scale: 3 },
+    { id: 'Y020', riasec: 'S', section: 'like', text: '여러 명이 함께 하는 놀이가 좋아요.', scale: 3 },
+
+    // E 기업형
+    { id: 'Y021', riasec: 'E', section: 'like', text: '놀이할 때 내가 먼저 "이렇게 하자!"라고 말할 때가 많아요.', scale: 3 },
+    { id: 'Y022', riasec: 'E', section: 'like', text: '게임에서 이기면 아주 기분이 좋아요.', scale: 3 },
+    { id: 'Y023', riasec: 'E', section: 'like', text: '친구들 앞에서 발표하는 것이 무섭지 않아요.', scale: 3 },
+    { id: 'Y024', riasec: 'E', section: 'like', text: '가게 놀이나 사장님 놀이가 재미있어요.', scale: 3 },
+    { id: 'Y025', riasec: 'E', section: 'like', text: '새로운 놀이를 만들어서 친구들에게 알려주는 게 좋아요.', scale: 3 },
+
+    // C 관습형
+    { id: 'Y026', riasec: 'C', section: 'like', text: '내 물건을 깔끔하게 정리하는 게 좋아요.', scale: 3 },
+    { id: 'Y027', riasec: 'C', section: 'like', text: '색칠하기를 할 때 선 밖으로 안 나가게 하려고 해요.', scale: 3 },
+    { id: 'Y028', riasec: 'C', section: 'like', text: '규칙을 잘 지키는 편이에요.', scale: 3 },
+    { id: 'Y029', riasec: 'C', section: 'like', text: '스티커나 카드를 모으고 정리하는 게 좋아요.', scale: 3 },
+    { id: 'Y030', riasec: 'C', section: 'like', text: '차례대로 줄 서서 기다리는 건 괜찮아요.', scale: 3 },
+
+    // ========== 잘하는 것 (18문항, RIASEC 각 3문항) ==========
+    // R
+    { id: 'Y031', riasec: 'R', section: 'good', text: '나는 달리기나 운동을 잘하는 편이에요.', scale: 3 },
+    { id: 'Y032', riasec: 'R', section: 'good', text: '나는 손으로 만들기를 잘해요.', scale: 3 },
+    { id: 'Y033', riasec: 'R', section: 'good', text: '나는 길을 잘 찾거나 방향 감각이 좋아요.', scale: 3 },
+    // I
+    { id: 'Y034', riasec: 'I', section: 'good', text: '나는 수학 문제를 잘 푸는 편이에요.', scale: 3 },
+    { id: 'Y035', riasec: 'I', section: 'good', text: '나는 무언가를 자세히 관찰하는 걸 잘해요.', scale: 3 },
+    { id: 'Y036', riasec: 'I', section: 'good', text: '나는 이유를 생각해서 설명하는 걸 잘해요.', scale: 3 },
+    // A
+    { id: 'Y037', riasec: 'A', section: 'good', text: '나는 그림을 잘 그려요.', scale: 3 },
+    { id: 'Y038', riasec: 'A', section: 'good', text: '나는 재미있는 이야기를 잘 만들어요.', scale: 3 },
+    { id: 'Y039', riasec: 'A', section: 'good', text: '나는 노래를 잘 부르거나 악기를 잘 다뤄요.', scale: 3 },
+    // S
+    { id: 'Y040', riasec: 'S', section: 'good', text: '나는 친구를 잘 사귀어요.', scale: 3 },
+    { id: 'Y041', riasec: 'S', section: 'good', text: '나는 친구 사이에서 싸움을 잘 말려요.', scale: 3 },
+    { id: 'Y042', riasec: 'S', section: 'good', text: '나는 다른 사람의 기분을 잘 알아차려요.', scale: 3 },
+    // E
+    { id: 'Y043', riasec: 'E', section: 'good', text: '나는 친구들에게 내 생각을 잘 말해요.', scale: 3 },
+    { id: 'Y044', riasec: 'E', section: 'good', text: '나는 모둠 활동에서 역할을 잘 나눠요.', scale: 3 },
+    { id: 'Y045', riasec: 'E', section: 'good', text: '나는 여러 사람 앞에서 말하는 게 잘 돼요.', scale: 3 },
+    // C
+    { id: 'Y046', riasec: 'C', section: 'good', text: '나는 받아쓰기를 잘하는 편이에요.', scale: 3 },
+    { id: 'Y047', riasec: 'C', section: 'good', text: '나는 실수 없이 꼼꼼하게 하는 걸 잘해요.', scale: 3 },
+    { id: 'Y048', riasec: 'C', section: 'good', text: '나는 준비물을 빠뜨리지 않고 잘 챙겨요.', scale: 3 },
+
+    // ========== 하고 싶은 것 (12문항, RIASEC 각 2문항) ==========
+    // R
+    { id: 'Y049', riasec: 'R', section: 'want', text: '로봇이나 자동차를 직접 만들어보고 싶어요.', scale: 3 },
+    { id: 'Y050', riasec: 'R', section: 'want', text: '농장에서 동물을 돌보는 일을 해보고 싶어요.', scale: 3 },
+    // I
+    { id: 'Y051', riasec: 'I', section: 'want', text: '과학자처럼 실험을 해보고 싶어요.', scale: 3 },
+    { id: 'Y052', riasec: 'I', section: 'want', text: '우주나 바다 속을 탐험해보고 싶어요.', scale: 3 },
+    // A
+    { id: 'Y053', riasec: 'A', section: 'want', text: '만화나 애니메이션을 만들어보고 싶어요.', scale: 3 },
+    { id: 'Y054', riasec: 'A', section: 'want', text: '무대에서 연기하거나 공연해보고 싶어요.', scale: 3 },
+    // S
+    { id: 'Y055', riasec: 'S', section: 'want', text: '선생님처럼 다른 사람을 가르쳐보고 싶어요.', scale: 3 },
+    { id: 'Y056', riasec: 'S', section: 'want', text: '아픈 사람을 도와주는 일을 해보고 싶어요.', scale: 3 },
+    // E
+    { id: 'Y057', riasec: 'E', section: 'want', text: '나만의 가게나 회사를 만들어보고 싶어요.', scale: 3 },
+    { id: 'Y058', riasec: 'E', section: 'want', text: '유튜브 채널을 만들어서 사람들에게 보여주고 싶어요.', scale: 3 },
+    // C
+    { id: 'Y059', riasec: 'C', section: 'want', text: '컴퓨터로 자료를 정리하는 일을 해보고 싶어요.', scale: 3 },
+    { id: 'Y060', riasec: 'C', section: 'want', text: '도서관에서 책을 정리하는 일을 해보고 싶어요.', scale: 3 }
+];
+
+// 미취학/초1~3 학부모용 검사 (20문항)
+const YOUNG_PARENT_QUESTIONS = [
+    // 자녀 관찰 RIASEC (12문항)
+    { id: 'YP01', category: 'observation', riasec: 'R', text: '우리 아이는 블록이나 조립 장난감을 좋아합니다.', scale: 5 },
+    { id: 'YP02', category: 'observation', riasec: 'R', text: '우리 아이는 야외 활동이나 체육을 좋아합니다.', scale: 5 },
+    { id: 'YP03', category: 'observation', riasec: 'I', text: '우리 아이는 "왜?"라는 질문을 자주 합니다.', scale: 5 },
+    { id: 'YP04', category: 'observation', riasec: 'I', text: '우리 아이는 숫자나 과학적인 것에 관심이 많습니다.', scale: 5 },
+    { id: 'YP05', category: 'observation', riasec: 'A', text: '우리 아이는 그림 그리기, 만들기, 노래 등 예술 활동을 좋아합니다.', scale: 5 },
+    { id: 'YP06', category: 'observation', riasec: 'A', text: '우리 아이는 상상력이 풍부하고 독창적인 편입니다.', scale: 5 },
+    { id: 'YP07', category: 'observation', riasec: 'S', text: '우리 아이는 다른 아이들과 잘 어울리고 배려심이 있습니다.', scale: 5 },
+    { id: 'YP08', category: 'observation', riasec: 'S', text: '우리 아이는 동생이나 친구를 도와주려고 합니다.', scale: 5 },
+    { id: 'YP09', category: 'observation', riasec: 'E', text: '우리 아이는 또래 사이에서 리더 역할을 맡으려 합니다.', scale: 5 },
+    { id: 'YP10', category: 'observation', riasec: 'E', text: '우리 아이는 승부욕이 강하고 경쟁을 좋아합니다.', scale: 5 },
+    { id: 'YP11', category: 'observation', riasec: 'C', text: '우리 아이는 물건을 정리정돈하는 편입니다.', scale: 5 },
+    { id: 'YP12', category: 'observation', riasec: 'C', text: '우리 아이는 규칙을 잘 따르고 약속을 지킵니다.', scale: 5 },
+
+    // 교육 환경 (8문항)
+    { id: 'YP13', category: 'support', text: '자녀의 교육을 위해 충분한 투자를 할 의향이 있다.', scale: 5 },
+    { id: 'YP14', category: 'support', text: '자녀의 학습 활동에 적극적으로 관여하고 있다.', scale: 5 },
+    { id: 'YP15', category: 'support', text: '자녀가 다양한 체험활동에 참여할 수 있도록 지원하고 있다.', scale: 5 },
+    { id: 'YP16', category: 'support', text: '가정 내에서 독서 습관이 잘 형성되어 있다.', scale: 5 },
+    { id: 'YP17', category: 'support', text: '자녀의 관심 분야와 재능을 존중하여 지원할 것이다.', scale: 5 },
+    { id: 'YP18', category: 'support', text: '자녀의 학교생활과 교우관계에 관심을 가지고 있다.', scale: 5 },
+    { id: 'YP19', category: 'support', text: '자녀의 자기주도 학습 능력은 어느 수준이라고 생각하십니까?', scale: 5, labels: ['매우 부족', '매우 우수'] },
+    { id: 'YP20', category: 'support', text: '자녀의 교육과 관련하여 추가로 알려주고 싶은 점이 있다면 적어주세요.', type: 'short' }
+];
+
+// 미취학/초1~3 교차검증 쌍
+const YOUNG_CROSS_VALIDATION = [
+    { q1: 'Y001', q2: 'Y032', type: 'same' }, // R 만들기
+    { q1: 'Y006', q2: 'Y035', type: 'same' }, // I 관찰
+    { q1: 'Y011', q2: 'Y037', type: 'same' }, // A 그림
+    { q1: 'Y016', q2: 'Y040', type: 'same' }, // S 친구
+    { q1: 'Y021', q2: 'Y043', type: 'same' }, // E 리더
+    { q1: 'Y026', q2: 'Y047', type: 'same' }, // C 꼼꼼
+    { q1: 'Y002', q2: 'Y031', type: 'same' }, // R 운동
+    { q1: 'Y007', q2: 'Y034', type: 'same' }, // I 수학
+];

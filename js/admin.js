@@ -74,17 +74,26 @@ async function loadAssessments() {
 
     if (db) {
         try {
-            const snapshot = await db.collection(COLLECTIONS.ASSESSMENTS)
-                .orderBy('studentCompletedAt', 'desc')
-                .get();
+            const snapshot = await db.collection(COLLECTIONS.ASSESSMENTS).get();
             snapshot.forEach(doc => {
                 allAssessments.push({ id: doc.id, ...doc.data() });
+            });
+            // 클라이언트에서 정렬
+            allAssessments.sort((a, b) => {
+                const da = a.studentCompletedAt || '';
+                const db2 = b.studentCompletedAt || '';
+                return db2.localeCompare(da);
             });
         } catch (e) {
             console.warn('Firebase 로드 실패, localStorage 사용:', e);
             loadFromLocalStorage();
         }
     } else {
+        loadFromLocalStorage();
+    }
+
+    // Firebase에 데이터 없으면 localStorage도 체크
+    if (allAssessments.length === 0) {
         loadFromLocalStorage();
     }
 

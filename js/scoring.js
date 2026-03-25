@@ -175,7 +175,33 @@ function calculateFieldScores(percentScores) {
     return results.sort((a, b) => b.score - a.score);
 }
 
-// 교차 검증 정확도 계산
+// 교차 검증 정확도 계산 (커스텀 쌍 지원)
+function calculateAccuracyWithPairs(answers, pairs) {
+    if (!pairs || !pairs.length) return 100;
+
+    let consistentCount = 0;
+    let totalPairs = 0;
+
+    pairs.forEach(pair => {
+        const a1 = answers[pair.q1];
+        const a2 = answers[pair.q2];
+        if (!a1 || !a2) return;
+        totalPairs++;
+
+        const v1 = a1.value || 0;
+        const v2 = a2.value || 0;
+
+        if (pair.type === 'same') {
+            if (Math.abs(v1 - v2) <= 1.5) consistentCount++;
+        } else if (pair.type === 'reverse') {
+            if (Math.abs((v1 + v2) - 6) <= 1.5) consistentCount++;
+        }
+    });
+
+    return totalPairs === 0 ? 100 : Math.round((consistentCount / totalPairs) * 100);
+}
+
+// 교차 검증 정확도 계산 (기본 쌍 사용)
 function calculateAccuracy(answers) {
     if (!CROSS_VALIDATION_PAIRS || !CROSS_VALIDATION_PAIRS.length) return 100;
 

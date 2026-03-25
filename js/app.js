@@ -8,6 +8,7 @@ let studentInfo = {};
 let gradeData = {};
 let testMode = 'student';
 let currentQuestionSet = [];
+let isYoungVersion = false; // 미취학/초1~3 여부
 
 // ==========================================
 // 화면 전환
@@ -124,6 +125,16 @@ function goToGrades() {
     studentInfo.targetUniv = document.getElementById('targetUniv').value.trim();
     studentInfo.targetMajor = document.getElementById('targetMajor').value.trim();
 
+    const youngGrades = ['미취학', '초1', '초2', '초3'];
+    isYoungVersion = youngGrades.includes(grade);
+
+    // 미취학/초1~3은 성적 입력 건너뛰기
+    if (isYoungVersion) {
+        gradeData = {};
+        startStudentTest();
+        return;
+    }
+
     renderGradeEntry(grade);
     showScreen('screen-grades');
 }
@@ -193,7 +204,12 @@ function collectGradeData() {
 // ==========================================
 function startStudentTest() {
     gradeData = collectGradeData();
-    currentQuestionSet = STUDENT_QUESTIONS;
+
+    // 미취학/초1~3은 쉬운 버전
+    const youngGrades = ['미취학', '초1', '초2', '초3'];
+    isYoungVersion = youngGrades.includes(studentInfo.grade);
+
+    currentQuestionSet = isYoungVersion ? YOUNG_QUESTIONS : STUDENT_QUESTIONS;
     currentQuestion = 0;
     answers = {};
     testMode = 'student';
@@ -207,7 +223,7 @@ function startStudentTest() {
 // 학부모 검사 시작
 // ==========================================
 function startParentTest() {
-    currentQuestionSet = PARENT_QUESTIONS;
+    currentQuestionSet = isYoungVersion ? YOUNG_PARENT_QUESTIONS : PARENT_QUESTIONS;
     currentQuestion = 0;
     answers = {};
     testMode = 'parent';
@@ -228,13 +244,14 @@ function initSectionDots() {
     const dotsContainer = document.getElementById('section-dots');
     dotsContainer.innerHTML = '';
 
-    const sections = testMode === 'student'
-        ? ASSESSMENT_SECTIONS
-        : [
-            { id: 'observation', name: '자녀 관찰', icon: '👀' },
-            { id: 'support', name: '교육 환경', icon: '🏠' },
-            { id: 'career', name: '진로', icon: '🎯' }
-          ];
+    let sections;
+    if (testMode === 'student') {
+        sections = isYoungVersion ? YOUNG_ASSESSMENT_SECTIONS : ASSESSMENT_SECTIONS;
+    } else {
+        sections = isYoungVersion
+            ? [{ id: 'observation', name: '자녀 관찰', icon: '👀' }, { id: 'support', name: '교육 환경', icon: '🏠' }]
+            : [{ id: 'observation', name: '자녀 관찰', icon: '👀' }, { id: 'support', name: '교육 환경', icon: '🏠' }, { id: 'career', name: '진로', icon: '🎯' }];
+    }
 
     sections.forEach((sec, i) => {
         const dot = document.createElement('div');
@@ -289,15 +306,29 @@ function getSectionInfo(q) {
 }
 
 function renderLikert(q) {
-    let html = '<div class="likert-scale">';
     const scale = q.scale || 5;
-    for (let i = 1; i <= scale; i++) {
-        const selected = answers[q.id] && answers[q.id].value === i ? ' selected' : '';
-        html += `<div class="likert-option${selected}" data-value="${i}">${i}</div>`;
+    let html = '<div class="likert-scale">';
+
+    if (scale === 3 && isYoungVersion) {
+        // 어린이용 3점 척도 (이모지)
+        const emojis = ['😔', '😐', '😊'];
+        const emojiLabels = ['아니야', '보통이야', '맞아!'];
+        for (let i = 1; i <= 3; i++) {
+            const selected = answers[q.id] && answers[q.id].value === i ? ' selected' : '';
+            html += `<div class="likert-option${selected}" data-value="${i}" style="width:72px; height:72px; font-size:28px; flex-direction:column; gap:2px;">
+                ${emojis[i - 1]}<span style="font-size:11px;">${emojiLabels[i - 1]}</span>
+            </div>`;
+        }
+        html += '</div>';
+    } else {
+        for (let i = 1; i <= scale; i++) {
+            const selected = answers[q.id] && answers[q.id].value === i ? ' selected' : '';
+            html += `<div class="likert-option${selected}" data-value="${i}">${i}</div>`;
+        }
+        html += '</div>';
+        const labels = q.labels || ['전혀 아니다', '매우 그렇다'];
+        html += `<div class="likert-label"><span>${labels[0]}</span><span>${labels[1]}</span></div>`;
     }
-    html += '</div>';
-    const labels = q.labels || ['전혀 아니다', '매우 그렇다'];
-    html += `<div class="likert-label"><span>${labels[0]}</span><span>${labels[1]}</span></div>`;
     return html;
 }
 
@@ -404,9 +435,29 @@ function updateNavButtons() {
 }
 
 function nextQuestion() {
+    // 미응답 체크 (단답형/short는 건너뛰기 허용)
+    const q = currentQuestionSet[currentQuestion];
+    if (!answers[q.id] && q.type !== 'short') {
+        showAnswerWarning();
+        return;
+    }
+
     if (currentQuestion < currentQuestionSet.length - 1) {
         currentQuestion++;
         renderQuestion();
+    }
+}
+
+function showAnswerWarning() {
+    const container = document.getElementById('question-container');
+    let warning = container.querySelector('.answer-warning');
+    if (!warning) {
+        warning = document.createElement('div');
+        warning.className = 'answer-warning';
+        warning.style.cssText = 'color:var(--danger); font-size:14px; font-weight:600; margin-top:16px; text-align:center; animation: shake 0.4s ease;';
+        warning.textContent = '응답을 선택해주세요.';
+        container.appendChild(warning);
+        setTimeout(() => { if (warning.parentNode) warning.remove(); }, 2000);
     }
 }
 
@@ -430,12 +481,21 @@ function jumpToSection(sectionId) {
 // 검사 완료
 // ==========================================
 function finishTest() {
+    // 마지막 문항 미응답 체크 (단답형 제외)
+    const lastQ = currentQuestionSet[currentQuestion];
+    if (!answers[lastQ.id] && lastQ.type !== 'short') {
+        showAnswerWarning();
+        return;
+    }
+
     const unanswered = currentQuestionSet.filter(q =>
         !answers[q.id] && q.type !== 'short'
     );
 
-    if (unanswered.length > 10) {
-        if (!confirm(`아직 ${unanswered.length}개 문항에 답하지 않았습니다.\n그래도 완료하시겠습니까?`)) {
+    if (unanswered.length > 0) {
+        if (!confirm(`아직 ${unanswered.length}개 문항에 답하지 않았습니다.\n해당 문항으로 이동하시겠습니까?`)) {
+            // 그래도 완료
+        } else {
             currentQuestion = currentQuestionSet.indexOf(unanswered[0]);
             renderQuestion();
             return;
@@ -470,8 +530,10 @@ function finishTest() {
 // 학생 검사 완료
 // ==========================================
 async function handleStudentComplete() {
-    const riasec = calculateRIASECScores(answers, STUDENT_QUESTIONS);
-    const accuracy = calculateAccuracy(answers);
+    const qSet = isYoungVersion ? YOUNG_QUESTIONS : STUDENT_QUESTIONS;
+    const riasec = calculateRIASECScores(answers, qSet);
+    const cvPairs = isYoungVersion ? YOUNG_CROSS_VALIDATION : CROSS_VALIDATION_PAIRS;
+    const accuracy = calculateAccuracyWithPairs(answers, cvPairs);
     const careerCode = determineCareerCode(riasec.percent);
 
     const data = {
@@ -481,6 +543,7 @@ async function handleStudentComplete() {
         careerCode: careerCode,
         gradeData: gradeData,
         accuracy: accuracy,
+        isYoungVersion: isYoungVersion,
         studentCompleted: true,
         studentCompletedAt: new Date().toISOString(),
         parentCompleted: false,
