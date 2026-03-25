@@ -4,12 +4,12 @@
 // Firebase 프로젝트 설정 후 아래 값을 교체하세요.
 // SETUP.md 파일을 참고하세요.
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyCC2BEoZzJ-TMVRJdak9_0nqGmPVLFAHAQ",
+    authDomain: "daechicode-assessment.firebaseapp.com",
+    projectId: "daechicode-assessment",
+    storageBucket: "daechicode-assessment.firebasestorage.app",
+    messagingSenderId: "837661983118",
+    appId: "1:837661983118:web:3c564d8b299cf39165a4df"
 };
 
 // Firebase 초기화
