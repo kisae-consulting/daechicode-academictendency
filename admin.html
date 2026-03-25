@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대치코드 관리자</title>
+    <link rel="stylesheet" href="css/style.css">
+    <meta name="robots" content="noindex, nofollow">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        .admin-login-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; }
+        .search-bar { display:flex; gap:8px; margin-bottom:20px; }
+        .search-bar input { flex:1; padding:10px 14px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-size:14px; outline:none; }
+        .search-bar input:focus { border-color:var(--primary); }
+        .detail-section { margin-bottom:24px; }
+        .detail-section h3 { font-size:16px; font-weight:700; margin-bottom:12px; padding-bottom:8px; border-bottom:2px solid var(--primary); }
+        .detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+        .detail-item { display:flex; justify-content:space-between; padding:6px 0; font-size:14px; }
+        .detail-item .label { color:var(--text-secondary); }
+        .detail-item .value { font-weight:600; }
+        .riasec-bar { display:flex; align-items:center; gap:8px; margin:4px 0; }
+        .riasec-bar .bar-label { width:60px; font-size:13px; font-weight:600; }
+        .riasec-bar .bar-track { flex:1; height:20px; background:var(--border); border-radius:4px; overflow:hidden; }
+        .riasec-bar .bar-fill { height:100%; border-radius:4px; transition:width 0.5s; }
+        .riasec-bar .bar-value { width:40px; text-align:right; font-size:13px; font-weight:700; }
+        .admin-actions { display:flex; gap:8px; flex-wrap:wrap; }
+        .tab-bar { display:flex; gap:0; margin-bottom:20px; border-bottom:2px solid var(--border); }
+        .tab-item { padding:10px 20px; font-size:14px; font-weight:600; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; color:var(--text-secondary); transition:all 0.2s; }
+        .tab-item.active { color:var(--primary); border-bottom-color:var(--primary); }
+        .tab-item:hover { color:var(--primary); }
+        #pdf-render-area { position:absolute; left:-9999px; top:0; width:800px; }
+    </style>
+</head>
+<body>
+    <!-- 관리자 로그인 -->
+    <div id="admin-login" class="admin-login-wrap">
+        <div class="container-narrow">
+            <div class="logo-container">
+                <img src="assets/logo.png" alt="대치코드" class="logo-img">
+                <div class="logo-divider"></div>
+                <span class="logo-text">관리자</span>
+            </div>
+            <div class="card">
+                <h3 style="margin-bottom:16px;">관리자 로그인</h3>
+                <div class="form-group">
+                    <label for="adminEmail">이메일</label>
+                    <input type="email" id="adminEmail" placeholder="admin@dachicode.com">
+                </div>
+                <div class="form-group">
+                    <label for="adminPassword">비밀번호</label>
+                    <input type="password" id="adminPassword" placeholder="비밀번호">
+                </div>
+                <button class="btn-primary" onclick="adminLogin()">로그인</button>
+                <p id="admin-login-error" style="color:var(--danger); font-size:13px; margin-top:12px; display:none;"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 관리자 대시보드 -->
+    <div id="admin-dashboard" style="display:none;">
+        <div class="admin-header">
+            <div class="logo-container" style="margin:0;">
+                <img src="assets/logo.png" alt="대치코드" class="logo-img">
+                <div class="logo-divider"></div>
+                <span class="logo-text">관리자 대시보드</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span id="admin-user" style="font-size:13px; color:var(--text-secondary);"></span>
+                <button class="btn-sm" onclick="adminLogout()">로그아웃</button>
+            </div>
+        </div>
+
+        <div class="admin-container">
+            <!-- 통계 카드 -->
+            <div class="admin-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-total">0</div>
+                    <div class="stat-label">전체 검사</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-complete">0</div>
+                    <div class="stat-label">완료 (학생+학부모)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-student-only">0</div>
+                    <div class="stat-label">학생만 완료</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-pending">0</div>
+                    <div class="stat-label">미완료</div>
+                </div>
+            </div>
+
+            <!-- 검색 -->
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="이름 또는 연락처로 검색..." oninput="filterTable()">
+                <button class="btn-sm primary" onclick="loadAssessments()">새로고침</button>
+            </div>
+
+            <!-- 검사 목록 -->
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>학생명</th>
+                        <th>연락처</th>
+                        <th>학년</th>
+                        <th>진로코드</th>
+                        <th>신뢰도</th>
+                        <th>상태</th>
+                        <th>검사일</th>
+                        <th>관리</th>
+                    </tr>
+                </thead>
+                <tbody id="assessment-list"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 상세 보기 모달 -->
+    <div id="detail-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div id="detail-content"></div>
+        </div>
+    </div>
+
+    <!-- PDF 렌더 영역 (숨김) -->
+    <div id="pdf-render-area"></div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/questions.js"></script>
+    <script src="js/scoring.js"></script>
+    <script src="js/pdf-report.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
