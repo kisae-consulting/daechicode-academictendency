@@ -335,7 +335,11 @@ async function generatePDFReport(assessmentData, analysisData) {
     if (analysisData.orientation) {
         drawSubTitle('문/이과 성향 분석');
         const o = analysisData.orientation;
-        drawText(`판정: ${o.orientation}  |  이과 지수: ${o.sciencePercent}%  |  문과 지수: ${o.humanPercent}%`, 9);
+        let orientText = `판정: ${o.orientation}  |  이과 지수: ${o.sciencePercent}%  |  문과 지수: ${o.humanPercent}%`;
+        if (o.artPercent !== undefined) {
+            orientText += `  |  예술 지수: ${o.artPercent}%`;
+        }
+        drawText(orientText, 9);
         y += 4;
     }
 

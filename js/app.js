@@ -35,6 +35,9 @@ async function handleLogin() {
     studentInfo.phone = cleanPhone;
     studentInfo.name = name;
 
+    // 익명 인증 완료 대기
+    await authReady;
+
     // Firebase에서 기존 데이터 확인
     let existingData = null;
     if (db) {
@@ -106,6 +109,11 @@ async function checkAndStartParent() {
     if (!existingData || !existingData.studentCompleted) {
         alert('학생 검사를 먼저 완료해주세요.');
         return;
+    }
+
+    // 저장된 데이터에서 isYoungVersion 복원 (다른 기기에서 접속 시)
+    if (existingData.isYoungVersion !== undefined) {
+        isYoungVersion = existingData.isYoungVersion;
     }
 
     testMode = 'parent';
@@ -234,7 +242,9 @@ function startParentTest() {
 }
 
 function goToParentFromComplete() {
-    checkAndStartParent();
+    // 학생 검사 직후이므로 재확인 불필요, 바로 학부모 검사 시작
+    testMode = 'parent';
+    startParentTest();
 }
 
 // ==========================================

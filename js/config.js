@@ -14,10 +14,17 @@ const firebaseConfig = {
 
 // Firebase 초기화
 let db, auth;
+let authReady = Promise.resolve();
 try {
     firebase.initializeApp(firebaseConfig);
     db = firebase.firestore();
     auth = firebase.auth();
+    // 익명 인증으로 다른 기기에서도 데이터 접근 가능하게
+    if (auth) {
+        authReady = auth.signInAnonymously().catch(e => {
+            console.warn('익명 인증 실패:', e);
+        });
+    }
 } catch (e) {
     console.warn('Firebase 초기화 실패. SETUP.md를 참고하여 설정하세요.', e);
 }

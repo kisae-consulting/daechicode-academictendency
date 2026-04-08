@@ -318,19 +318,27 @@ function calculateConsistencyLevels(sectionScores) {
 
 // 문/이과 성향 분석
 function analyzeOrientation(answers, percentScores) {
-    // 수학/과학 vs 국어/사회 문항
+    // 이과: R(현실형) + I(탐구형), 문과: S(사회형) + E(진취형) + C(관습형), 예술: A(예술형)
     const scienceScore = (percentScores['R'] + percentScores['I']) / 2;
-    const humanScore = (percentScores['A'] + percentScores['S']) / 2;
+    const humanScore = (percentScores['S'] + percentScores['E'] + percentScores['C']) / 3;
+    const artScore = percentScores['A'];
 
     // 교과 성향 문항 반영
     const orientQ = answers['S124'];
     const orientValue = orientQ ? orientQ.value : 3;
 
+    // 예술형이 가장 높은 경우 예술형으로 분류
+    const sorted = Object.entries(percentScores).sort((a, b) => b[1] - a[1]);
+    const topType = sorted[0][0];
+    const isArtDominant = topType === 'A' && artScore > scienceScore && artScore > humanScore;
+
     // 종합 판단
     const orientationScore = (scienceScore - humanScore) * 0.6 + (orientValue - 3) * 20 * 0.4;
 
     let orientation;
-    if (orientationScore > 15) orientation = '이과';
+    if (isArtDominant) {
+        orientation = '예술형';
+    } else if (orientationScore > 15) orientation = '이과';
     else if (orientationScore > 5) orientation = '이과 성향';
     else if (orientationScore > -5) orientation = '균형';
     else if (orientationScore > -15) orientation = '문과 성향';
@@ -340,7 +348,8 @@ function analyzeOrientation(answers, percentScores) {
         score: Math.round(orientationScore),
         orientation,
         sciencePercent: Math.round(scienceScore),
-        humanPercent: Math.round(humanScore)
+        humanPercent: Math.round(humanScore),
+        artPercent: Math.round(artScore)
     };
 }
 
